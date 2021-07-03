@@ -5,6 +5,7 @@ import { defaultLanguages, setupI18N } from './i18n';
 import { Router, Switch, Route } from "react-router-dom";
 import ShoppingList from "./views/ShoppingList";
 import { createBrowserHistory } from 'history';
+import AccountProvider from "./context/AccountProvider";
 
 function App() {
 
@@ -21,12 +22,14 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
 
-          <Router history={history}>
-            <Switch>
-              <Route exact path="/" component={ShoppingList} />
-              <Route component={ShoppingList} />
-            </Switch>
-          </Router>
+          <AccountProvider>
+            <Router history={history}>
+              <Switch>
+                <Route exact path="/" component={ShoppingList} />
+                <Route component={ShoppingList} />
+              </Switch>
+            </Router>
+          </AccountProvider>
 
         </ThemeProvider>
       </Suspense>

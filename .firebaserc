@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "fernando-labs",
+    "dev": "fernando-labs",
+  },
+  "targets": {
+    "fernando-labs": {
+      "hosting": {
+        "dev": [
+          "shopshop"
+        ]
+      }
+    }
+  }
+}

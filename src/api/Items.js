@@ -47,7 +47,7 @@ export const useItems = (accountId) => {
     (async function getItems() {
       try {
         setStatus(ApiStatus.loading);
-        await ApiUtils.sleep(4500);
+        await ApiUtils.sleep(2500);
         setItems([
           { name: "Bread", status: ItemStatus.pending },
           { name: "Milk", status: ItemStatus.pending },

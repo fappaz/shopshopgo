@@ -3,7 +3,7 @@ import { AppBar, Divider, fade, InputBase, makeStyles, Menu, MenuItem, Toolbar, 
 import { useTranslation } from 'react-i18next';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Controller, useForm } from 'react-hook-form';
-import * as AccountApi from '../api/Accounts';
+import { AccountContext } from "../context/AccountProvider";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,7 +50,7 @@ function MainAppBar({
 	const classes = useStyles();
 	const [profileMenuAnchorEl, setProfileMenuAnchorEl] = React.useState(null);
 	const isProfileMenuOpen = Boolean(profileMenuAnchorEl);
-	const { account } = AccountApi.useAccount("testAccountId"); /** @TODO get id from user signed in */
+	const { account } = React.useContext(AccountContext);
 
 	const onSubmit = (formData) => {
     const { itemName } = formData;
@@ -69,7 +69,7 @@ function MainAppBar({
 
 					<Typography variant="h6" noWrap className={classes.title}>{t("appName")}</Typography>
 
-					<Zoom in={onItemAdded}>
+					<Zoom in={!!onItemAdded}>
 						<div className={classes.itemField}>
 							<form onSubmit={handleSubmit(onSubmit)}>
 								<Controller
@@ -118,9 +118,8 @@ function MainAppBar({
 						open={isProfileMenuOpen}
 						onClose={closeProfileMenu}
 					>
-						<MenuItem disabled>{account?.name}</MenuItem>
+						<MenuItem disabled>{account?.email}</MenuItem>
 						<Divider />
-						<MenuItem onClick={closeProfileMenu}>{t('settings')}</MenuItem>
 						<MenuItem onClick={closeProfileMenu}>{t('signOut')}</MenuItem>
 					</Menu>
 
