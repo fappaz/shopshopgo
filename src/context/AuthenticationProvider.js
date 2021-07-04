@@ -1,7 +1,7 @@
 import React, { useState, createContext } from "react";
 import { auth } from "../database/firebase/FirebaseConfig";
 
-export const AccountContext = createContext();
+export const AuthenticationContext = createContext();
 
 const Provider = ({ children }) => {
 
@@ -25,15 +25,14 @@ const Provider = ({ children }) => {
 
   }, []);
 
-
   return (
-    <AccountContext.Provider
+    <AuthenticationContext.Provider
       value={{
         account
       }}
     >
       {children}
-    </AccountContext.Provider>
+    </AuthenticationContext.Provider>
   );
 };
 

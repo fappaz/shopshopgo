@@ -3,7 +3,8 @@ import { AppBar, Divider, fade, InputBase, makeStyles, Menu, MenuItem, Toolbar, 
 import { useTranslation } from 'react-i18next';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Controller, useForm } from 'react-hook-form';
-import { AccountContext } from "../context/AccountProvider";
+import { AuthenticationContext } from "../context/AuthenticationProvider";
+import * as AccountApi from "../api/AccountApi";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,7 +51,7 @@ function MainAppBar({
 	const classes = useStyles();
 	const [profileMenuAnchorEl, setProfileMenuAnchorEl] = React.useState(null);
 	const isProfileMenuOpen = Boolean(profileMenuAnchorEl);
-	const { account } = React.useContext(AccountContext);
+	const { account } = React.useContext(AuthenticationContext);
 
 	const onSubmit = (formData) => {
     const { itemName } = formData;
@@ -60,6 +61,15 @@ function MainAppBar({
 	};
 
 	const closeProfileMenu = () => setProfileMenuAnchorEl(null);
+
+	const signOut = async () => {
+		try {
+			await AccountApi.signOut();
+			closeProfileMenu();
+		} catch (error) {
+			console.error(`Failed to sign out`, error);
+		}
+	};
 
 	return (
 		<div className={classes.root}>
@@ -120,7 +130,7 @@ function MainAppBar({
 					>
 						<MenuItem disabled>{account?.email}</MenuItem>
 						<Divider />
-						<MenuItem onClick={closeProfileMenu}>{t('signOut')}</MenuItem>
+						<MenuItem onClick={signOut}>{t('signOut')}</MenuItem>
 					</Menu>
 
 				</Toolbar>

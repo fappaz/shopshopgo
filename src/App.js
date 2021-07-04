@@ -4,32 +4,36 @@ import React, { Suspense } from "react";
 import { defaultLanguages, setupI18N } from './i18n';
 import { Router, Switch, Route } from "react-router-dom";
 import ShoppingList from "./views/ShoppingList";
+import SignIn from "./views/SignIn";
 import { createBrowserHistory } from 'history';
-import AccountProvider from "./context/AccountProvider";
+import AuthenticationProvider from "./context/AuthenticationProvider";
+import PrivateRoute from "./PrivateRoute";
+import { useTranslation } from 'react-i18next';
 
 function App() {
 
   const theme = createMuiTheme(MaterialUiSettings.theme);
   const history = createBrowserHistory();
+  const { t } = useTranslation();
 
-  React.useEffect(() => {
+  React.useEffect(function loadTranslations() {
     setupI18N(defaultLanguages, "en-NZ");
   }, []);
 
   return (
     <>
-      <Suspense fallback={<>...</>}>
+      <Suspense fallback={<>{t('loading')}</>}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
 
-          <AccountProvider>
+          <AuthenticationProvider>
             <Router history={history}>
               <Switch>
-                <Route exact path="/" component={ShoppingList} />
-                <Route component={ShoppingList} />
+                <PrivateRoute exact path={["/", "/items", "/list"]} component={ShoppingList} />
+                <Route exact path={["/login", "/signin", "/sign-in"]} component={SignIn} />
               </Switch>
             </Router>
-          </AccountProvider>
+          </AuthenticationProvider>
 
         </ThemeProvider>
       </Suspense>
