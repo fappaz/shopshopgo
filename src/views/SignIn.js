@@ -1,7 +1,6 @@
 import React from 'react';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { Controller, useForm } from "react-hook-form";
-import { useHistory } from "react-router";
 import {
   Avatar,
   Box,
@@ -13,16 +12,13 @@ import {
 } from '@material-ui/core';
 import BusyButton from "../components/BusyButton";
 import { useTranslation } from 'react-i18next';
-import { AuthenticationContext } from '../context/AuthenticationProvider';
 import * as AccountApi from '../api/AccountApi';
 
 function SignIn() {
 
-  const { account } = React.useContext(AuthenticationContext);
 	const { clearErrors, control, handleSubmit, setError } = useForm();
   const [busyButtons, setBusyButtons] = React.useState(false);
   const classes = useStyles();
-  const history = useHistory();
   const { t } = useTranslation();
 
   const formFields = {
@@ -55,42 +51,35 @@ function SignIn() {
     },
   };
 
-  React.useEffect(function showListOnAccountAuthenticated() {
-    if (!account) return;
-    history.push("/list");
-  }, [account, history]);
+  const knownErrors = {
+    "auth/invalid-email": {
+      message: t('formErrorInvalidEmail'),
+      fieldId: 'email'  
+    },
+    "auth/wrong-password": {
+      message: t('formErrorCredentialsNotMatching'),
+      fieldId: 'password'  
+    },
+    "auth/user-not-found": {
+      message: t('formErrorCredentialsNotMatching'),
+      fieldId: 'password'
+    },
+    fallback: {
+      message: t('formErrorSystemUnavailable'),
+      fieldId: 'password'
+    }
+  };
 
   const onSubmit = async (formData) => {
-    console.log(formData)
     setBusyButtons(true);
     try {
       clearErrors();
       const { email, password } = formData;
       await AccountApi.signIn(email, password);
-      history.push("/list");
     } catch (error) {
       console.error(`Failed to sign in:`, error);
-      const knownErrors = {
-        "auth/invalid-email": {
-          message: t('formErrorInvalidEmail'),
-          fieldId: 'email'  
-        },
-        "auth/wrong-password": {
-          message: t('formErrorCredentialsNotMatching'),
-          fieldId: 'password'  
-        },
-        "auth/user-not-found": {
-          message: t('formErrorCredentialsNotMatching'),
-          fieldId: 'password'
-        },
-        fallback: {
-          message: t('formErrorSystemUnavailable'),
-          fieldId: 'password'
-        }
-      };
       const errorDetails = knownErrors[error.code] || knownErrors.fallback;
       setError(errorDetails.field, { message: errorDetails.message, type: "manua" });
-    } finally {
       setBusyButtons(false);
     }
   };

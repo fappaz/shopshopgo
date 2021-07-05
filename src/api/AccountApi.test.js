@@ -1,4 +1,4 @@
-import * as AccountApi from "./AccountApi";
+import * as api from "./AccountApi";
 import * as db from "../database/firebase/Authentication";
 
 /** Mocking database layer. All tested methods should be mocked here. */
@@ -41,7 +41,7 @@ describe('test signIn', () => {
       user: getMockUser()
     };
     db.signIn.mockResolvedValue(mockAuth);
-    const user = await AccountApi.signIn(mockAuth.user.email, 'testPassword');
+    const user = await api.signIn(mockAuth.user.email, 'testPassword');
     expect(user).toStrictEqual(mockAuth.user);
   });
 
@@ -51,7 +51,7 @@ describe('test signOut', () => {
   
   it('should sign out', async () => {
     const mockUserDoc = getMockUserDoc();
-    await AccountApi.signOut(mockUserDoc.id);
+    await api.signOut(mockUserDoc.id);
     expect(db.signOut.mock.calls.length).toBeTruthy();
   });
 });
