@@ -51,18 +51,29 @@ An ads-free, open-source, incredibly simple shopping list app for the busy perso
             }
           }
           ```
-- Update the `.firebaserc` file with your project and hosting names
 - Create environment files (e.g.: `.env.development.local`) in the root folder of this project, containing all the environment variables for your project. Example:
     - ```properties
       REACT_APP_FIREBASE_API_KEY=AIzaSyBBF4_xfROYA56lx3BOdHzIc5u7kJwQoKI
-      REACT_APP_FIREBASE_AUTH=my-app-sandbox.firebaseapp.com
-      REACT_APP_FIREBASE_DATABASE=https://my-app-sandbox.firebaseio.com
-      REACT_APP_FIREBASE_PROJECT_ID="my-app-sandbox"
+      REACT_APP_FIREBASE_AUTH=my-project.firebaseapp.com
+      REACT_APP_FIREBASE_DATABASE=https://my-project.firebaseio.com
+      REACT_APP_FIREBASE_PROJECT_ID="my-project"
       REACT_APP_FIREBASE_SENDER=600197252111
       REACT_APP_FIREBASE_APP_ID=1:600197252111:web:4cf6e9373d6cf9e99d4f7a
       ```
     - Don't forget to add this file to your `.gitignore`, as it contains sensitive data about your project.
     - Update your `package.json` scripts accordingly
+- Run `firebase login && firebase init` in your folder and follow instructions to set up firebase configuration files:
+    - When asked which Firebase features you want to set up, at the moment just select `Hosting: Configure files for Firebase Hosting and (optionally) set up GitHub Action deploys`
+    - Answer the questions like below:
+        - ```
+          ? What do you want to use as your public directory? ./build
+          ? Configure as a single-page app (rewrite all urls to /index.html)? No
+          ? Set up automatic builds and deploys with GitHub? No
+          ? File ./build/404.html already exists. Overwrite? No
+          ? File ./build/index.html already exists. Overwrite? No
+          ```
+  - The script should generate 2 files: `.firebaserc` and `firebase.json`. Add them to your `.gitignore` if you prefer not to expose your project and hosting names.
+  - Edit your `firebase.json` and add a `site` property under `hosting`. Its value must be the hosting name you set up on Firebase Hosting.
 
 ## How to run locally
 ```
@@ -106,11 +117,10 @@ Open a terminal shell and run the following commands in the root folder:
 
 ```
 firebase login
-firebase init
 firebase deploy --only hosting:${HOSTING_NAME}
 ```
 
-**Note**: replace `${HOSTING_NAME}` with the hosting name you configured in your Firebase project or `.firebaserc` file (e.g.: `shopshopgo`)
+**Note**: replace `${HOSTING_NAME}` with the hosting name you configured in your Firebase Hosting (it should be the `site` property in your `firebase.json` file)
 
 # Known Issues
 
