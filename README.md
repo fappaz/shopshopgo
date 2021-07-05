@@ -10,7 +10,7 @@
     - [How to build](#how-to-build)
     - [How to deploy](#how-to-deploy)
 - [Known Issues](#known-issues)
-  - [UnauthorizedAccess when logging in to firebase on PowerShell](#unauthorizedaccess-when-logging-in-to-firebase-on-powershell)
+  - [UnauthorizedAccess when logging in to Firebase on PowerShell](#unauthorizedaccess-when-logging-in-to-firebase-on-powershell)
 # Description
 
 An ads-free, open-source, incredibly simple shopping list app for the busy person.
@@ -33,6 +33,24 @@ An ads-free, open-source, incredibly simple shopping list app for the busy perso
 - Create a new [Firebase](https://console.firebase.google.com/) project
 - Create a new app and add a Firebase hosting
 - Enable `Email/Password` authentication in your Firebase project
+    - At the time of writing, this app does not support unnattended sign up. New users must be added manually via Firebase Authentication.
+- Create a Firestore database
+    - Make sure you create rules that allow accounts to read and write on their own documents only, such as below:
+        - ```
+          rules_version = '2';
+          service cloud.firestore {
+            match /databases/{database}/documents {
+              match /accounts {
+                match /{accountId} {
+                  match /{document=**} {
+                    // an account can only get, list and update its own documents
+                    allow read, write: if request.auth != null && accountId == request.auth.uid;   
+                  }
+                }
+              }
+            }
+          }
+          ```
 - Update the `.firebaserc` file with your project and hosting names
 - Create environment files (e.g.: `.env.development.local`) in the root folder of this project, containing all the environment variables for your project. Example:
     - ```properties
@@ -96,7 +114,7 @@ firebase deploy --only hosting:${HOSTING_NAME}
 
 # Known Issues
 
-## UnauthorizedAccess when logging in to firebase on PowerShell
+## UnauthorizedAccess when logging in to Firebase on PowerShell
 
 When running `firebase login` on Windows PowerShell, you might get the following error message:
 

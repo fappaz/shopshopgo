@@ -6,6 +6,7 @@ import CloseIcon from '@material-ui/icons/Close';
 /**
  *
  * @param {Object} props The component props.
+ * @param {string} props.id The item unique ID.
  * @param {string} props.name The item name.
  * @param {string} props.status The item status.
  * @param {Function} props.onClick The function to be called when the item is clicked on.
@@ -13,6 +14,7 @@ import CloseIcon from '@material-ui/icons/Close';
  * @returns 
  */
 function Item({
+  id,
   name,
   status = "pending",
   onClick,

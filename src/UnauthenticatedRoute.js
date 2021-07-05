@@ -4,20 +4,21 @@ import { AuthenticationContext } from "./context/AuthenticationProvider";
 
 /**
  * A route that will render the component if the account is NOT authenticated, or redirect to a path otherwise.
+ * @returns 
  */
-const PrivateRoute = ({ component: RouteComponent, redirectPath = "/login", ...props }) => {
+const UnauthenticatedRoute = ({ component: RouteComponent, redirectPath = "/list", ...props }) => {
   const { account } = useContext(AuthenticationContext);
   return (
     <Route
       {...props}
       render={(routeProps) => (
         !!account ?
-          <RouteComponent {...routeProps} />
-        :
           <Redirect to={redirectPath} />
+        :
+          <RouteComponent {...routeProps} />
       )}
     />
   );
 };
 
-export default PrivateRoute;
+export default UnauthenticatedRoute;

@@ -3,9 +3,10 @@ import { Box, Divider, Grid, makeStyles, Paper, ThemeProvider, Typography, useTh
 import React from "react";
 import MainAppBar from "../components/MainAppBar";
 import ItemsList from "../components/ItemsList";
-import * as ItemsApi from "../api/Items";
+import * as ItemsApi from "../api/ItemsApi";
 import { useTranslation } from "react-i18next";
 import Skeleton from '@material-ui/lab/Skeleton';
+import { AuthenticationContext } from "../context/AuthenticationProvider";
 
 const useStyles = makeStyles(theme => ({
   opaque: {
@@ -29,6 +30,7 @@ function SkeletonItems ({ quantity = 4, height = 50 } = {}) {
 
 function ShoppingList() {
 
+  const { account } = React.useContext(AuthenticationContext);
   const { t } = useTranslation();
   const classes = useStyles();
   const mainTheme = useTheme();
@@ -58,7 +60,7 @@ function ShoppingList() {
     }
   };
 
-  const { items, pendingItems, purchasedItems, addItem, editItem, removeItem, status } = ItemsApi.useItems();
+  const { items, pendingItems, purchasedItems, addItem, editItem, removeItem, status } = ItemsApi.useItems(account?.id);
 
   if (status === ItemsApi.ApiStatus.loading) {
     return (
@@ -76,8 +78,8 @@ function ShoppingList() {
         items.length > 0 ?
           <ItemsList
             items={pendingItems.sort((a, b) => a.name.localeCompare(b.name))}
-            onClick={(item) => editItem(item.name, { ...item, status: ItemsApi.ItemStatus.purchased })}
-            onDelete={(item) => removeItem(item.name)}
+            onClick={(item) => editItem(item.id, { ...item, status: ItemsApi.ItemStatus.purchased })}
+            onDelete={(item) => removeItem(item.id)}
           />
         :
           <Grid container justify="center">
@@ -103,8 +105,8 @@ function ShoppingList() {
               <Paper>
                 <ItemsList
                   items={purchasedItems.sort((a, b) => a.name.localeCompare(b.name))}
-                  onClick={(item) => editItem(item.name, { ...item, status: ItemsApi.ItemStatus.pending })}
-                  onDelete={(item) => removeItem(item.name)}
+                  onClick={(item) => editItem(item.id, { ...item, status: ItemsApi.ItemStatus.pending })}
+                  onDelete={(item) => removeItem(item.id)}
                 />
               </Paper>
             </ThemeProvider>
