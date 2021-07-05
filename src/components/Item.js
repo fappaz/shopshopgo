@@ -32,7 +32,7 @@ function Item({
           color="primary"
         />
       </ListItemIcon>
-      <ListItemText primary={<Typography style={{ textDecorationLine: status === "pending" ? "none" : "line-through" }}>{name}</Typography>}/>
+      <ListItemText primary={<Typography>{name}</Typography>}/>
       <ListItemSecondaryAction>
         <IconButton edge="end" onClick={onDelete}>
           <CloseIcon />
