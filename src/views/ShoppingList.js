@@ -39,6 +39,8 @@ function ShoppingList() {
     palette: {
       ...mainTheme.palette,
       type: 'dark',
+      primary: mainTheme.palette.secondary,
+      secondary: mainTheme.palette.primary,
       text: {
         ...mainTheme.palette.text,
         primary: '#fff',

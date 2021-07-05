@@ -3,10 +3,10 @@ const MaterialUiSettings = {
     palette: {
       // type: 'dark',
       primary: {
-        main: '#009688',
+        main: '#880e4f',
       },
       secondary: {
-        main: '#ffea00',
+        main: '#76ff03',
       },
     },
   },
