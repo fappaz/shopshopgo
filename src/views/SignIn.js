@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import {
   Avatar,
   Box,
+  CircularProgress,
   Fade,
   Grid,
   makeStyles,
@@ -13,6 +14,8 @@ import {
 import BusyButton from "../components/BusyButton";
 import { useTranslation } from 'react-i18next';
 import * as AccountApi from '../api/AccountApi';
+import { AuthenticationContext } from '../context/AuthenticationProvider';
+import VerticalCenter from "../components/VerticalCenter";
 
 function SignIn() {
 
@@ -20,6 +23,7 @@ function SignIn() {
   const [busyButtons, setBusyButtons] = React.useState(false);
   const classes = useStyles();
   const { t } = useTranslation();
+  const { loading: isAuthenticationPending } = React.useContext(AuthenticationContext);
 
   const formFields = {
     email: {
@@ -148,6 +152,14 @@ function SignIn() {
       </Box>
     );
   };
+
+  if (isAuthenticationPending) {
+    return (
+      <VerticalCenter>
+        <CircularProgress size={100}/>
+      </VerticalCenter>
+    )
+  }
 
   return (
     <Box mt={6}>
