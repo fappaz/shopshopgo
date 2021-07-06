@@ -6,9 +6,11 @@ export const AuthenticationContext = createContext();
 const Provider = ({ children }) => {
 
   const [account, setAccount] = useState(null);
+  const [loading, setLoading] = useState(true);
   
   React.useEffect(function setUpAuthListener() {
 
+    setLoading(true);
     auth.onAuthStateChanged(user => {
       let account = null;
 
@@ -21,6 +23,7 @@ const Provider = ({ children }) => {
       }
 
       setAccount(account);
+      setLoading(false);
     });
 
   }, []);
@@ -28,7 +31,8 @@ const Provider = ({ children }) => {
   return (
     <AuthenticationContext.Provider
       value={{
-        account
+        account,
+        loading,
       }}
     >
       {children}
