@@ -153,6 +153,20 @@ function SignIn() {
     );
   };
 
+  const Footer = () => {
+    return (
+      <Box>
+        <Grid container justify='center' spacing={3}>
+          <Grid item xs={12}>
+            <Typography variant='body2' align='center' className={classes.disabled}>
+              {t('appVersion', { version: process.env.REACT_APP_VERSION})}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Box>
+    );
+  };
+  
   if (isAuthenticationPending) {
     return (
       <VerticalCenter>
@@ -171,6 +185,7 @@ function SignIn() {
                 <Grid item xs={12}>{ Header() }</Grid>
                 <Grid item xs={12}>{ Fields() }</Grid>
                 <Grid item xs={12}>{ Buttons() }</Grid>
+                <Grid item xs={12}>{ Footer() }</Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -185,7 +200,7 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     backgroundColor: theme.palette.primary.main,
   },
-  disabledAvatar: {
+  disabled: {
     opacity: 0.5,
   },
   smallAvatar: {

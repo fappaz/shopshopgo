@@ -128,4 +128,4 @@ yarn-error.log*
 
 /.firebase
 .firebaserc
-.firebase.json
+firebase.json
