@@ -159,7 +159,7 @@ function SignIn() {
         <Grid container justify='center' spacing={3}>
           <Grid item xs={12}>
             <Typography variant='body2' align='center' className={classes.disabled}>
-              {t('appVersion', { version: process.env.REACT_APP_VERSION})}
+              {t('allRightsReserved')}
             </Typography>
           </Grid>
         </Grid>
