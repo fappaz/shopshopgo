@@ -74,7 +74,7 @@ function MainAppBar({
 	return (
 		<div className={classes.root}>
 
-			<AppBar position="static">
+			<AppBar position="fixed">
 				<Toolbar>
 
 					<Typography variant="h6" noWrap className={classes.title}>{t("appName")}</Typography>
@@ -116,15 +116,7 @@ function MainAppBar({
 					<Menu
 						id="menu-appbar"
 						anchorEl={profileMenuAnchorEl}
-						anchorOrigin={{
-							vertical: 'bottom',
-							horizontal: 'left',
-						}}
 						keepMounted
-						transformOrigin={{
-							vertical: 'bottom',
-							horizontal: 'left',
-						}}
 						open={isProfileMenuOpen}
 						onClose={closeProfileMenu}
 					>
@@ -135,6 +127,12 @@ function MainAppBar({
 
 				</Toolbar>
 			</AppBar>
+
+			{/**
+			 * This "empty" toolbar fixes a known issue with fixed AppBar.
+			 * See https://material-ui.com/components/app-bar/#fixed-placement
+			 * */}
+			<Toolbar />
 		</div>
 	);
 }

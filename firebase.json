@@ -1,7 +1,7 @@
 {
   "hosting": {
     "site": "shopshopgo",
-    "public": "build",
+    "public": "./build",
     "ignore": [
       "firebase.json",
       "**/.*",
