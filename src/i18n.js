@@ -16,7 +16,7 @@ export const defaultLanguages = {
     "translation": {
       "addFirstItem": "Add your first item on the text box above",
       "allRightsReserved": "© $t(appName) 2021 • All Rights Reserved",
-      "appName": "shopshop",
+      "appName": "shopshopgo",
       "appVersion": "Version {{- version}}",
       "back": "Back",
       "cancel": "Cancel",
