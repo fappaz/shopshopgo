@@ -7,29 +7,29 @@ import { AuthenticationContext } from "../context/AuthenticationProvider";
 import * as AccountApi from "../api/AccountApi";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  title: {
-    flexGrow: 1
-  },
-  itemField: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-    width: 'auto',
+	root: {
+		flexGrow: 1,
+	},
+	title: {
+		flexGrow: 1
+	},
+	itemField: {
+		position: 'relative',
+		borderRadius: theme.shape.borderRadius,
+		backgroundColor: fade(theme.palette.common.white, 0.15),
+		'&:hover': {
+			backgroundColor: fade(theme.palette.common.white, 0.25),
+		},
+		width: 'auto',
 		margin: theme.spacing(0, 1, 0, 1),
-  },
-  inputRoot: {
-    color: 'inherit',
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 1),
-    width: '100%',
-  },
+	},
+	inputRoot: {
+		color: 'inherit',
+	},
+	inputInput: {
+		padding: theme.spacing(1, 1, 1, 1),
+		width: '100%',
+	},
 }));
 
 /**
@@ -54,10 +54,10 @@ function MainAppBar({
 	const { account } = React.useContext(AuthenticationContext);
 
 	const onSubmit = (formData) => {
-    const { itemName } = formData;
-    if (!itemName || !onItemAdded) return;
-    onItemAdded({ name: itemName, status: "pending" });
-    reset({ itemName: '' });
+		const { itemName } = formData;
+		if (!itemName || !onItemAdded) return;
+		onItemAdded({ name: itemName, status: "pending" });
+		reset({ itemName: '' });
 	};
 
 	const closeProfileMenu = () => setProfileMenuAnchorEl(null);
@@ -68,6 +68,14 @@ function MainAppBar({
 			closeProfileMenu();
 		} catch (error) {
 			console.error(`Failed to sign out`, error);
+		}
+	};
+
+	const exportList = async () => {
+		try {
+			await ItemsApi.exportList(account.id);
+		} catch (error) {
+			console.error(`Failed to export list.`, error);
 		}
 	};
 
@@ -96,7 +104,7 @@ function MainAppBar({
 												root: classes.inputRoot,
 												input: classes.inputInput,
 											}}
-											
+
 											{...fieldProps}
 										/>
 									)}
@@ -104,7 +112,7 @@ function MainAppBar({
 							</form>
 						</div>
 					</Zoom>
-					
+
 					<IconButton
 						edge="end"
 						color="inherit"
@@ -122,6 +130,7 @@ function MainAppBar({
 					>
 						<MenuItem disabled>{account?.email}</MenuItem>
 						<Divider />
+						<MenuItem onClick={exportList}>{t('exportList')}</MenuItem>
 						<MenuItem onClick={signOut}>{t('signOut')}</MenuItem>
 					</Menu>
 

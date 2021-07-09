@@ -134,3 +134,10 @@ export const deleteById = async (accountId, itemId) => await db.deleteById(accou
 export const testable = {
   docToItem,
 };
+
+export const exportList = async (accountId) => {
+  const docs = await db.list(accountId);
+  const list = docs.map(doc => docToItem(doc));
+  const json = JSON.stringify(list);
+  DownloadUtils.downloadTextFile(`export.json`, json, `text/json`);
+};

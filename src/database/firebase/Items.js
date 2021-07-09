@@ -60,3 +60,13 @@ export const subscribeToItems = (accountId, onChange) => {
 export const deleteById = async (accountId, itemId) => {
   await firestore.doc(`accounts/${accountId}/apps/shopshop/items/${itemId}`).delete();
 };
+
+/**
+ * 
+ * @param {string} accountId The account ID.
+ * @returns {Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>[]>} A list of documents.
+ */
+ export const list = async (accountId) => {
+  const querySnapshot = await firestore.collection(`accounts/${accountId}/apps/shopshop/items`).get();
+  return querySnapshot.docs();
+};
