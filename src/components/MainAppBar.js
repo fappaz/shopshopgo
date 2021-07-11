@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: fade(theme.palette.common.white, 0.25),
     },
     width: 'auto',
-		margin: theme.spacing(0, 1, 0, 1),
+    margin: theme.spacing(0, 1, 0, 1),
   },
   inputRoot: {
     color: 'inherit',
@@ -39,102 +39,102 @@ const useStyles = makeStyles((theme) => ({
  * @returns 
  */
 function MainAppBar({
-	onItemAdded
+  onItemAdded
 } = {}) {
 
-	const { t } = useTranslation();
-	const { control, handleSubmit, reset } = useForm({
-		defaultValues: {
-			itemName: ''
-		}
-	});
-	const classes = useStyles();
-	const [profileMenuAnchorEl, setProfileMenuAnchorEl] = React.useState(null);
-	const isProfileMenuOpen = Boolean(profileMenuAnchorEl);
-	const { account } = React.useContext(AuthenticationContext);
+  const { t } = useTranslation();
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      itemName: ''
+    }
+  });
+  const classes = useStyles();
+  const [profileMenuAnchorEl, setProfileMenuAnchorEl] = React.useState(null);
+  const isProfileMenuOpen = Boolean(profileMenuAnchorEl);
+  const { account } = React.useContext(AuthenticationContext);
 
-	const onSubmit = (formData) => {
+  const onSubmit = (formData) => {
     const { itemName } = formData;
     if (!itemName || !onItemAdded) return;
     onItemAdded({ name: itemName, status: "pending" });
     reset({ itemName: '' });
-	};
+  };
 
-	const closeProfileMenu = () => setProfileMenuAnchorEl(null);
+  const closeProfileMenu = () => setProfileMenuAnchorEl(null);
 
-	const signOut = async () => {
-		try {
-			await AccountApi.signOut();
-			closeProfileMenu();
-		} catch (error) {
-			console.error(`Failed to sign out`, error);
-		}
-	};
+  const signOut = async () => {
+    try {
+      await AccountApi.signOut();
+      closeProfileMenu();
+    } catch (error) {
+      console.error(`Failed to sign out`, error);
+    }
+  };
 
-	return (
-		<div className={classes.root}>
+  return (
+    <div className={classes.root}>
 
-			<AppBar position="fixed">
-				<Toolbar>
+      <AppBar position="fixed">
+        <Toolbar>
 
-					<Typography variant="h6" noWrap className={classes.title}>{t("appName")}</Typography>
+          <Typography variant="h6" noWrap className={classes.title}>{t("appName")}</Typography>
 
-					<Zoom in={!!onItemAdded}>
-						<div className={classes.itemField}>
-							<form onSubmit={handleSubmit(onSubmit)}>
-								<Controller
-									control={control}
-									name="itemName"
-									render={({
-										field: { ref, ...fieldProps }
-									}) => (
-										<InputBase
-											id={fieldProps.name}
-											placeholder={t("textFieldItemName")}
-											variant="filled"
-											classes={{
-												root: classes.inputRoot,
-												input: classes.inputInput,
-											}}
-											
-											{...fieldProps}
-										/>
-									)}
-								/>
-							</form>
-						</div>
-					</Zoom>
-					
-					<IconButton
-						edge="end"
-						color="inherit"
-						onClick={e => setProfileMenuAnchorEl(e.currentTarget)}
-					>
-						<AccountCircle />
-					</IconButton>
+          <Zoom in={!!onItemAdded}>
+            <div className={classes.itemField}>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Controller
+                  control={control}
+                  name="itemName"
+                  render={({
+                    field: { ref, ...fieldProps }
+                  }) => (
+                    <InputBase
+                      id={fieldProps.name}
+                      placeholder={t("textFieldItemName")}
+                      variant="filled"
+                      classes={{
+                        root: classes.inputRoot,
+                        input: classes.inputInput,
+                      }}
 
-					<Menu
-						id="menu-appbar"
-						anchorEl={profileMenuAnchorEl}
-						keepMounted
-						open={isProfileMenuOpen}
-						onClose={closeProfileMenu}
-					>
-						<MenuItem disabled>{account?.email}</MenuItem>
-						<Divider />
-						<MenuItem onClick={signOut}>{t('signOut')}</MenuItem>
-					</Menu>
+                      {...fieldProps}
+                    />
+                  )}
+                />
+              </form>
+            </div>
+          </Zoom>
 
-				</Toolbar>
-			</AppBar>
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={e => setProfileMenuAnchorEl(e.currentTarget)}
+          >
+            <AccountCircle />
+          </IconButton>
 
-			{/**
-			 * This "empty" toolbar fixes a known issue with fixed AppBar.
-			 * See https://material-ui.com/components/app-bar/#fixed-placement
-			 * */}
-			<Toolbar />
-		</div>
-	);
+          <Menu
+            id="menu-appbar"
+            anchorEl={profileMenuAnchorEl}
+            keepMounted
+            open={isProfileMenuOpen}
+            onClose={closeProfileMenu}
+          >
+            <MenuItem disabled>{account?.email}</MenuItem>
+            <Divider />
+            <MenuItem onClick={signOut}>{t('signOut')}</MenuItem>
+          </Menu>
+
+        </Toolbar>
+      </AppBar>
+
+      {/**
+       * This "empty" toolbar fixes a known issue with fixed AppBar.
+       * See https://material-ui.com/components/app-bar/#fixed-placement
+       * */}
+      <Toolbar />
+    </div>
+  );
 }
 
 export default MainAppBar;

@@ -129,7 +129,7 @@ firebase deploy --only hosting:${HOSTING_NAME}
 When running `firebase login` on Windows PowerShell, you might get the following error message:
 
 ```
-PS C:\git\shopshop> firebase login
+PS C:\git\shopshopgo> firebase login
 firebase : File C:\Users\YourUser\AppData\Roaming\npm\firebase.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at     
 https:/go.microsoft.com/fwlink/?LinkID=135170.
 At line:1 char:1
