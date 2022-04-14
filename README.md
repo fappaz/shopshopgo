@@ -22,7 +22,7 @@ An ads-free, open-source, incredibly simple shopping list app for the busy perso
 ### Install dependencies
 
 - Install the tools below:
-  - NodeJS 11+
+  - NodeJS 16+
   - npm 6.9.0+
   - Firebase Tools (`npm install -g firebase-tools`)
   - env-cmd 10.0.1 (`npm install -g env-cmd@10.0.1`)
@@ -33,9 +33,10 @@ An ads-free, open-source, incredibly simple shopping list app for the busy perso
 - Create a new [Firebase](https://console.firebase.google.com/) project
 - Create a new app and add a Firebase hosting
 - Enable `Email/Password` authentication in your Firebase project
-    - At the time of writing, this app does not support unnattended sign up. New users must be added manually via Firebase Authentication.
+    - **Note**: At the time of writing, this app does not support unnattended sign up. New users must be added manually via Firebase Authentication. 
+    - Create a document under the `accounts` collection, where the ID is the same as the Firebase Auth UID you created. See existing documents as a reference for the required structure.
 - Create a Firestore database
-    - Make sure you create rules that allow accounts to read and write on their own documents only, such as below:
+    - While this project has no rule setup, you should manually create rules that allow accounts to read and write on their own documents only, such as below:
         - ```
           rules_version = '2';
           service cloud.firestore {

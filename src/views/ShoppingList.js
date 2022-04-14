@@ -1,20 +1,15 @@
 
-import { Box, Divider, Grid, makeStyles, Paper, ThemeProvider, Typography, useTheme } from "@material-ui/core";
+import { Box, Grid, List, Typography } from "@material-ui/core";
 import React from "react";
 import MainAppBar from "../components/MainAppBar";
-import ItemsList from "../components/ItemsList";
+import Item from "../components/Item";
 import * as ItemsApi from "../api/ItemsApi";
 import { useTranslation } from "react-i18next";
 import Skeleton from '@material-ui/lab/Skeleton';
 import { AuthenticationContext } from "../context/AuthenticationProvider";
+import { sortAlphabetically } from "../utils/arrayUtils";
 
-const useStyles = makeStyles(theme => ({
-  opaque: {
-    opacity: 0.6,
-  },
-}));
-
-function SkeletonItems ({ quantity = 4, height = 50 } = {}) {
+function SkeletonItems ({ quantity = 5, height = 50 } = {}) {
   return (
     <Box my={1}>
       {
@@ -32,39 +27,15 @@ function ShoppingList() {
 
   const { account } = React.useContext(AuthenticationContext);
   const { t } = useTranslation();
-  const classes = useStyles();
-  const mainTheme = useTheme();
-  const purchasedTheme = {
-    ...mainTheme,
-    palette: {
-      ...mainTheme.palette,
-      type: 'dark',
-      primary: mainTheme.palette.secondary,
-      secondary: mainTheme.palette.primary,
-      text: {
-        ...mainTheme.palette.text,
-        primary: '#fff',
-        icon: 'rgba(255, 255, 255, 0.5)',
-      },
-      divider: 'rgba(255, 255, 255, 0.12)',
-      background: {
-        paper: '#424242',
-        default: '#303030',
-      },
-      action: {
-        ...mainTheme.palette.action,
-        active: '#fff',
-        selected: 'rgba(255, 255, 255, 0.16)',
-      },
-    },
-    shape: {
-      borderRadius: 0,
-    }
-  };
 
-  const { items, pendingItems, purchasedItems, addItem, editItem, removeItem, status } = ItemsApi.useItems(account?.id);
+  const { items, addItem, editItem, removeItem, apiStatus, processingItemIds } = ItemsApi.useItems(account?.id);
 
-  if (status === ItemsApi.ApiStatus.loading) {
+  const onDuplicateItemAdded = (itemName, duplicateItem) => {
+    const { id, ...data } = duplicateItem;
+    editItem(id, { ...data, status: ItemsApi.ItemStatus.pending });
+  }
+
+  if (apiStatus === ItemsApi.ApiStatus.loading) {
     return (
       <>
         <MainAppBar />
@@ -75,14 +46,38 @@ function ShoppingList() {
 
   return (
     <>
-      <MainAppBar onItemAdded={addItem} />
+      <MainAppBar
+        onItemAdded={addItem}
+        onDuplicateItemAdded={onDuplicateItemAdded}
+        items={items}
+      />
       {
         items.length > 0 ?
-          <ItemsList
-            items={pendingItems.sort((a, b) => a.name.localeCompare(b.name))}
-            onClick={(item) => editItem(item.id, { ...item, status: ItemsApi.ItemStatus.purchased })}
-            onDelete={(item) => removeItem(item.id)}
-          />
+          <List>
+            {
+              []
+              .concat(
+                items
+                  .filter(item => item.status === ItemsApi.ItemStatus.pending)
+                  .sort((a,b) => sortAlphabetically(a.name, b.name))
+              )
+              .concat(
+                items
+                  .filter(item => item.status === ItemsApi.ItemStatus.purchased)
+                  .sort((a, b) => sortAlphabetically(a.name, b.name))
+              )
+              .map((item, index) => (
+                <Item
+                  {...item}
+                  ticked={item.status === "purchased"}
+                  key={`item-${index}`}
+                  onClick={() => editItem(item.id, { ...item, status: item.status === ItemsApi.ItemStatus.purchased ? ItemsApi.ItemStatus.pending : ItemsApi.ItemStatus.purchased })}
+                  onDelete={() => removeItem(item.id)}
+                  processing={processingItemIds.includes(item.id)}
+                />
+              ))
+            }
+          </List>
         :
           <Grid container justify="center">
             <Grid item xs={5}>
@@ -91,34 +86,6 @@ function ShoppingList() {
               </Box>
             </Grid>
           </Grid>
-      }
-
-      <Box mt={2} mx={2}>
-        <Typography variant="overline">
-            {t("purchasedItems")}
-        </Typography>
-      </Box>
-      <Divider />
-
-      {
-        purchasedItems.length > 0 ?
-          <>
-            <ThemeProvider theme={purchasedTheme}>
-              <Paper>
-                <ItemsList
-                  items={purchasedItems.sort((a, b) => a.name.localeCompare(b.name))}
-                  onClick={(item) => editItem(item.id, { ...item, status: ItemsApi.ItemStatus.pending })}
-                  onDelete={(item) => removeItem(item.id)}
-                />
-              </Paper>
-            </ThemeProvider>
-          </>
-        :
-        <Box mx={3} mt={2}>
-          <Typography variant="body2" className={classes.opaque}>
-              {t("empty")}
-          </Typography>
-        </Box>
       }
     </>
   );

@@ -83,7 +83,7 @@ function SignIn() {
     } catch (error) {
       console.error(`Failed to sign in:`, error);
       const errorDetails = knownErrors[error.code] || knownErrors.fallback;
-      setError(errorDetails.field, { message: errorDetails.message, type: "manua" });
+      setError(errorDetails.fieldId, { message: errorDetails.message, type: "manual" });
       setBusyButtons(false);
     }
   };
@@ -159,7 +159,7 @@ function SignIn() {
         <Grid container justify='center' spacing={3}>
           <Grid item xs={12}>
             <Typography variant='body2' align='center' className={classes.disabled}>
-              {t('allRightsReserved')}
+              {t('allRightsReserved', { year: new Date().getFullYear() })}
             </Typography>
           </Grid>
         </Grid>
