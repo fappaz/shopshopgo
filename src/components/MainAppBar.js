@@ -5,13 +5,16 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Controller, useForm } from 'react-hook-form';
 import { AuthenticationContext } from "../context/AuthenticationProvider";
 import * as AccountApi from "../api/AccountApi";
+import { Autocomplete } from "@material-ui/lab";
+import { sortAlphabetically } from "../utils/arrayUtils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
   title: {
-    flexGrow: 1
+    flexGrow: 1,
+    overflow: 'inherit',
   },
   itemField: {
     position: 'relative',
@@ -20,8 +23,8 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       backgroundColor: fade(theme.palette.common.white, 0.25),
     },
-    width: 'auto',
-    margin: theme.spacing(0, 1, 0, 1),
+    width: '100%',
+    margin: theme.spacing(0, 1, 0, 2),
   },
   inputRoot: {
     color: 'inherit',
@@ -35,11 +38,15 @@ const useStyles = makeStyles((theme) => ({
 /**
  *
  * @param {Object} props The component props.
+ * @param {Item[]} [props.items] An array of items, for autocomplete options.
  * @param {Function} [props.onItemAdded] The function to be called when an item is added to the list. If none is provided, the form remain be hidden.
- * @returns 
+ * @param {Function} [props.onDuplicateItemAdded] The function to be called when adding an item that already exists.
+ * @returns {JSX.Element}
  */
 function MainAppBar({
-  onItemAdded
+  items = [],
+  onItemAdded,
+  onDuplicateItemAdded,
 } = {}) {
 
   const { t } = useTranslation();
@@ -53,10 +60,17 @@ function MainAppBar({
   const isProfileMenuOpen = Boolean(profileMenuAnchorEl);
   const { account } = React.useContext(AuthenticationContext);
 
-  const onSubmit = (formData) => {
+  const onSubmit = async (formData) => {
     const { itemName } = formData;
     if (!itemName || !onItemAdded) return;
-    onItemAdded({ name: itemName, status: "pending" });
+
+    const duplicateItem = items.find(item => item.name.toLocaleLowerCase() === itemName.toLocaleLowerCase() );
+    if (Boolean(duplicateItem)) {
+      await onDuplicateItemAdded(itemName, duplicateItem);
+    } else {
+      await onItemAdded({ name: itemName, status: "pending" });
+    }
+
     reset({ itemName: '' });
   };
 
@@ -88,15 +102,25 @@ function MainAppBar({
                   render={({
                     field: { ref, ...fieldProps }
                   }) => (
-                    <InputBase
+                    <Autocomplete
                       id={fieldProps.name}
-                      placeholder={t("textFieldItemName")}
-                      variant="filled"
-                      classes={{
-                        root: classes.inputRoot,
-                        input: classes.inputInput,
+                      freeSolo
+                      options={items.map(item => item.name).sort((a, b) => sortAlphabetically(a, b))}
+                      renderInput={(props) => {
+                        const { InputLabelProps, InputProps, ...rest} = props;
+                        return (
+                          <InputBase
+                            placeholder={t("textFieldItemName")}
+                            variant="filled"
+                            classes={{
+                              root: classes.inputRoot,
+                              input: classes.inputInput,
+                            }}
+                            {...InputProps}
+                            {...rest}
+                          />
+                        )
                       }}
-
                       {...fieldProps}
                     />
                   )}
