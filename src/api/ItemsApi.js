@@ -27,7 +27,8 @@ export const ItemStatus = {
  * @property {Function} addItem The function to add an item to the pending list.
  * @property {Function} editItem The function to edit an existing item in the list.
  * @property {Function} removeItem The function to remove an item from the list.
- * @property {string} status The API request status, which is one of the ApiStatus values.
+ * @property {string} apiStatus The API request status, which should be one of the ApiStatus values.
+ * @property {string[]} processingItemIds An array with the IDs of items that are being processed/edited.
  */
 
 /**
@@ -38,27 +39,28 @@ export const ItemStatus = {
 export const useItems = (accountId) => {
 
   const [items, setItems] = React.useState([]);
-  const [pendingItems, setPendingItems] = React.useState([]);
-  const [purchasedItems, setPurchasedItems] = React.useState([]);
-  const [status, setStatus] = React.useState(ApiStatus.loading);
+  const [apiStatus, setApiStatus] = React.useState(ApiStatus.loading);
+  const [processingItemIds, setProcessingItemIds] = React.useState([]);
   
   React.useEffect(function setUpListener() {
     let unsubscribe;
     if (!accountId) return;
 
     try {
-      setStatus(ApiStatus.loading);
-      const onChange = (docs) => {
+      const onChange = (docs, changes) => {
+        
         const items = docs.map(doc => docToItem(doc));
         setItems(items);
-        setPendingItems(items.filter(item => item.status === ItemStatus.pending));
-        setPurchasedItems(items.filter(item => item.status === ItemStatus.purchased));
+        
+        setApiStatus(ApiStatus.success);
+
+        const modifiedItemIds = changes.filter(change => change.type === "modified").map(change => change.doc.data().id);
+        setProcessingItemIds(processingItemIds.filter(itemId => !modifiedItemIds.includes(itemId)));
       }
       unsubscribe = db.subscribeToItems(accountId, onChange);
-      setStatus(ApiStatus.success);
     } catch (error) {
       console.error(`Failed to fetch items. Error:`, error);
-      setStatus(ApiStatus.error);
+      setApiStatus(ApiStatus.error);
     }
 
     return () => {
@@ -67,17 +69,24 @@ export const useItems = (accountId) => {
   }, [accountId]);
 
   const addItem = async (item) => await insert(accountId, item);
-  const editItem = async (itemId, item) => await update(accountId, { ...item, id: itemId });
-  const removeItem = async (itemId) => await deleteById(accountId, itemId);
+
+  const editItem = async (itemId, item) => {
+    setProcessingItemIds(previousState => [...previousState, item.id]);
+    await update(accountId, { ...item, id: itemId });
+  }
+
+  const removeItem = async (itemId) => {
+    setProcessingItemIds(previousState => [...previousState, itemId]);
+    await deleteById(accountId, itemId);
+  }
 
   return {
     items,
-    pendingItems,
-    purchasedItems,
     addItem,
     editItem,
     removeItem,
-    status,
+    apiStatus,
+    processingItemIds,
   };
 };
 
@@ -106,7 +115,7 @@ export const findById = async (accountId, itemId) => {
 /**
  * Insert an item.
  * @param {string} accountId The account ID.
- * @param {Object} item The item.
+ * @param {Item} item The item.
  * @returns {Promise<Item>} A promise with the item inserted.
  */
 export const insert = async (accountId, item) => {
@@ -117,8 +126,7 @@ export const insert = async (accountId, item) => {
 /**
  * Update an existing record in the database.
  * @param {string} accountId The account ID.
- * @param {Object} item The new data to be assigned to the record.
- * @param {string} item.id The unique ID for the record.
+ * @param {Item} item The new data to be assigned to the record.
  * @returns {Promise<void>}
  */
 export const update = async (accountId, item) => await db.update(accountId, item);
@@ -126,7 +134,7 @@ export const update = async (accountId, item) => await db.update(accountId, item
 /**
  * Delete an item from the database.
  * @param {string} accountId The account ID.
- * @param {string} itemId The item ID
+ * @param {string} itemId The item ID.
  * @returns {Promise<void>}
  */
 export const deleteById = async (accountId, itemId) => await db.deleteById(accountId, itemId);

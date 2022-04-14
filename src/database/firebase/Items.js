@@ -1,12 +1,14 @@
 import { firestore } from "./FirebaseConfig";
 
+const getCollectionPath = accountId => `accounts/${accountId}/apps/shopshopgo/lists/shopping-list/items`;
+
 /**
  * Find record on Firestore by its ID.
  * @param {string} accountId The account ID.
  * @param {string} itemId The item ID.
  * @returns {Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>} A promise with the document found.
  */
-export const findById = async (accountId, itemId) => await firestore.doc(`accounts/${accountId}/apps/shopshopgo/lists/shopping-list/items/${itemId}`).get();
+export const findById = async (accountId, itemId) => await firestore.doc(`${getCollectionPath(accountId)}/${itemId}`).get();
 
 /**
  * 
@@ -15,11 +17,11 @@ export const findById = async (accountId, itemId) => await firestore.doc(`accoun
  * @returns {Function} An unsubscribe function.
  */
 export const subscribeToItems = (accountId, onChange) => {
-  const path = `accounts/${accountId}/apps/shopshopgo/lists/shopping-list/items`;
+  const path = getCollectionPath(accountId);
   return firestore
     .collection(path)
     .onSnapshot(snapshot => {
-      onChange(snapshot.docs);
+      onChange(snapshot.docs, snapshot.docChanges());
     });
 };
 
@@ -30,8 +32,9 @@ export const subscribeToItems = (accountId, onChange) => {
  * @param {Object} item The item.
  * @returns {Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>} A promise with the document inserted.
  */
- export const insert = async (accountId, item) => {
-  const doc = firestore.collection(`accounts/${accountId}/apps/shopshopgo/lists/shopping-list/items`).doc();
+export const insert = async (accountId, item) => {
+  const path = getCollectionPath(accountId); 
+  const doc = firestore.collection(path).doc();
   await doc.set(item);
   return await doc.get();
 };
@@ -46,9 +49,8 @@ export const subscribeToItems = (accountId, onChange) => {
  * @returns {Promise<void>}
  */
  export const update = async (accountId, item, { merge = true } = {}) => {
-  let itemId = item.id;
-  delete item.id;
-  await firestore.doc(`accounts/${accountId}/apps/shopshopgo/lists/shopping-list/items/${itemId}`).set(item, { merge });
+  const { id, ...data } = item;
+  await firestore.doc(`${getCollectionPath(accountId)}/${id}`).set(data, { merge });
 };
 
 /**
@@ -58,5 +60,5 @@ export const subscribeToItems = (accountId, onChange) => {
  * @returns {Promise<void>}
  */
 export const deleteById = async (accountId, itemId) => {
-  await firestore.doc(`accounts/${accountId}/apps/shopshopgo/lists/shopping-list/items/${itemId}`).delete();
+  await firestore.doc(`${getCollectionPath(accountId)}/${itemId}`).delete();
 };
