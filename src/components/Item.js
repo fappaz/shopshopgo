@@ -1,4 +1,4 @@
-import { IconButton, LinearProgress, ListItem, ListItemText, ListItemSecondaryAction, makeStyles, Typography } from "@material-ui/core";
+import { IconButton, LinearProgress, ListItem, ListItemText, ListItemSecondaryAction, makeStyles, Typography, Divider } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 
 const useStyles = makeStyles(theme => ({
@@ -6,6 +6,9 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.grey[300],
     textDecoration: `line-through ${theme.palette.grey[600]}88`,
     opacity: 0.8,
+  },
+  opaque: {
+    opacity: 0,
   }
 }));
 
@@ -32,22 +35,17 @@ function Item({
   const classes = useStyles();
 
   return (
-    <>
+    <div className={ticked ? classes.ticked : null}>
       <ListItem
-        dense
         button
-        divider
-        onClick={e => {
+        onClick={(e) => {
           if (processing) return;
           onClick(e);
         }}
-        className={ ticked ? classes.ticked : null}
       >
         <ListItemText primary={<Typography>{name}</Typography>}/>
         {
-          processing ?
-            null
-          :
+          !processing &&
             <ListItemSecondaryAction>
               <IconButton edge="end" onClick={onDelete}>
                 <CloseIcon />
@@ -55,13 +53,9 @@ function Item({
             </ListItemSecondaryAction>
         }
       </ListItem>
-      {
-        processing ?
-          <LinearProgress />
-        :
-          null
-      }
-    </>
+      <LinearProgress className={ processing ? null : classes.opaque } />
+      <Divider />
+    </div>
   );
 }
 
