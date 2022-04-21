@@ -1,5 +1,6 @@
 import { IconButton, LinearProgress, ListItem, ListItemText, ListItemSecondaryAction, makeStyles, Typography } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
+import React from 'react';
 
 const useStyles = makeStyles(theme => ({
   ticked: {

@@ -1,12 +1,13 @@
-import React from "react";
-import { AppBar, Divider, fade, InputBase, makeStyles, Menu, MenuItem, Toolbar, Typography, IconButton, Zoom } from '@material-ui/core';
+import React, { useEffect } from "react";
+import { AppBar, Divider, InputBase, makeStyles, Menu, MenuItem, Toolbar, Typography, IconButton, Zoom } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import { Controller, useForm } from 'react-hook-form';
 import { AuthenticationContext } from "../context/AuthenticationProvider";
 import * as AccountApi from "../api/AccountApi";
-import { Autocomplete } from "@material-ui/lab";
+import Autocomplete from "./Autocomplete";
 import { sortAlphabetically } from "../utils/arrayUtils";
+import { useSnackbar } from "notistack";
+import { alpha } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,9 +20,9 @@ const useStyles = makeStyles((theme) => ({
   itemField: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
     '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
+      backgroundColor: alpha(theme.palette.common.white, 0.25),
     },
     width: '100%',
     margin: theme.spacing(0, 1, 0, 2),
@@ -50,28 +51,33 @@ function MainAppBar({
 } = {}) {
 
   const { t } = useTranslation();
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      itemName: ''
-    }
-  });
   const classes = useStyles();
   const [profileMenuAnchorEl, setProfileMenuAnchorEl] = React.useState(null);
   const isProfileMenuOpen = Boolean(profileMenuAnchorEl);
+  const [autocompleteOptions, setAutocompleteOptions] = React.useState([]);
   const { account } = React.useContext(AuthenticationContext);
+  const { enqueueSnackbar } = useSnackbar();
+  
+  useEffect(function updateOptions() {
+    setAutocompleteOptions(items.map(i=>i.name).sort((a, b) => sortAlphabetically(a, b)));
+  }, [items]);
 
-  const onSubmit = async (formData) => {
-    const { itemName } = formData;
-    if (!itemName || !onItemAdded) return;
 
-    const duplicateItem = items.find(item => item.name.toLocaleLowerCase() === itemName.toLocaleLowerCase() );
-    if (Boolean(duplicateItem)) {
-      await onDuplicateItemAdded(itemName, duplicateItem);
-    } else {
-      await onItemAdded({ name: itemName, status: "pending" });
+  const onSubmit = async (event, itemName) => {
+    try {
+      if (!itemName || !onItemAdded) return;
+
+      const duplicateItem = items.find(item => item.name.toLocaleLowerCase() === itemName.toLocaleLowerCase() );
+      if (Boolean(duplicateItem)) {
+        await onDuplicateItemAdded(itemName, duplicateItem);
+      } else {
+        await onItemAdded({ name: itemName, status: "pending" });
+      }
+      
+    } catch (error) {
+      console.error(`Failed to add item. Reason:`, error);
+      enqueueSnackbar(t(`items.errors.failedToAdd`), { variant: 'error' });
     }
-
-    reset({ itemName: '' });
   };
 
   const closeProfileMenu = () => setProfileMenuAnchorEl(null);
@@ -95,37 +101,31 @@ function MainAppBar({
 
           <Zoom in={!!onItemAdded}>
             <div className={classes.itemField}>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Controller
-                  control={control}
-                  name="itemName"
-                  render={({
-                    field: { ref, ...fieldProps }
-                  }) => (
-                    <Autocomplete
-                      id={fieldProps.name}
-                      freeSolo
-                      options={items.map(item => item.name).sort((a, b) => sortAlphabetically(a, b))}
-                      renderInput={(props) => {
-                        const { InputLabelProps, InputProps, ...rest} = props;
-                        return (
-                          <InputBase
-                            placeholder={t("textFieldItemName")}
-                            variant="filled"
-                            classes={{
-                              root: classes.inputRoot,
-                              input: classes.inputInput,
-                            }}
-                            {...InputProps}
-                            {...rest}
-                          />
-                        )
+              <Autocomplete
+                freeSolo
+                options={autocompleteOptions}
+                onChange={onSubmit}
+                renderInput={(props) => {
+                  /** 
+                   * The props need to be deconstructed this way because:
+                   * - InputLabelProps must be ignored so it won't add an unwanted label to the InputBase
+                   * - InputProps must be set to the InputBase before the rest of props, so the autocomplete select box will be displayed properly
+                   */
+                  const { InputLabelProps, InputProps, ...rest} = props;
+                  return (
+                    <InputBase
+                      {...InputProps}
+                      {...rest}
+                      placeholder={t("textFieldItemName")}
+                      variant="filled"
+                      classes={{
+                        root: classes.inputRoot,
+                        input: classes.inputInput,
                       }}
-                      {...fieldProps}
                     />
-                  )}
-                />
-              </form>
+                  )
+                }}
+              />
             </div>
           </Zoom>
 

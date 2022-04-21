@@ -46,6 +46,11 @@ export const defaultLanguages = {
       "formErrorRequiredField": "This field is required.",
       "formErrorSystemUnavailable": "System is unavailable, please try again later.",
       "id": "ID",
+      "items": {
+        "errors": {
+          "failedToAdd": "Failed to add item, please relaunch the app and try again"
+        }
+      },
       "lastUpdatedAt": "Last updated at {{- timestamp}}",
       "listSeparator": ", ",
       "loading": "Loading, please wait...",

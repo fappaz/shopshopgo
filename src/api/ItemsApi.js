@@ -56,7 +56,7 @@ export const useItems = (accountId) => {
 
         const modifiedItemIds = changes.filter(change => change.type === "modified").map(change => change.doc.data().id);
         setProcessingItemIds(processingItemIds.filter(itemId => !modifiedItemIds.includes(itemId)));
-      }
+      };
       unsubscribe = db.subscribeToItems(accountId, onChange);
     } catch (error) {
       console.error(`Failed to fetch items. Error:`, error);
@@ -65,7 +65,7 @@ export const useItems = (accountId) => {
 
     return () => {
       if (unsubscribe) unsubscribe();
-    }
+    };
   }, [accountId]);
 
   const addItem = async (item) => await insert(accountId, item);
@@ -73,12 +73,12 @@ export const useItems = (accountId) => {
   const editItem = async (itemId, item) => {
     setProcessingItemIds(previousState => [...previousState, item.id]);
     await update(accountId, { ...item, id: itemId });
-  }
+  };
 
   const removeItem = async (itemId) => {
     setProcessingItemIds(previousState => [...previousState, itemId]);
     await deleteById(accountId, itemId);
-  }
+  };
 
   return {
     items,
