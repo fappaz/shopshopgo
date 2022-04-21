@@ -55,7 +55,7 @@ export const useItems = (accountId) => {
         setApiStatus(ApiStatus.success);
 
         const modifiedItemIds = changes.filter(change => change.type === "modified").map(change => change.doc.data().id);
-        setProcessingItemIds(processingItemIds => processingItemIds.filter(itemId => modifiedItemIds.includes(itemId)));
+        setProcessingItemIds(processingItemIds.filter(itemId => !modifiedItemIds.includes(itemId)));
       };
       unsubscribe = db.subscribeToItems(accountId, onChange);
     } catch (error) {
