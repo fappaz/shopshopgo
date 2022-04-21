@@ -4,9 +4,9 @@ import React from 'react';
 
 const useStyles = makeStyles(theme => ({
   ticked: {
-    backgroundColor: theme.palette.grey[300],
-    textDecoration: `line-through ${theme.palette.grey[600]}88`,
-    opacity: 0.8,
+    backgroundColor: theme.palette.grey[400],
+    textDecoration: `line-through ${theme.palette.grey[800]}aa`,
+    opacity: 0.9,
   },
   opaque: {
     opacity: 0,
