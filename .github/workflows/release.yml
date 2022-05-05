@@ -5,7 +5,9 @@ name: release
 
 on:
   push:
-    branches: [ main ]
+    # branches: [ main ] # Use this instead once this CI script is fully tested
+    branches:
+      - 'feature/**'
 
 jobs:
 
