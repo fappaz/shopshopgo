@@ -5,8 +5,8 @@ name: release
 
 on:
   push:
-    # branches: [ main ] # Use this line instead once this CI/CD script is fully tested
     branches:
+      - main
       - 'feature/**'
 
 jobs:
