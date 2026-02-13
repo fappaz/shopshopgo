@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { AppBar, Divider, InputBase, makeStyles, Menu, MenuItem, Toolbar, Typography, IconButton, Zoom } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -37,14 +37,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- *
+ * @TODO instead of setting a callback for `onDuplicateItemAdded`, this should be automatically handled by the `useItems`
  * @param {Object} props The component props.
  * @param {Item[]} [props.items] An array of items, for autocomplete options.
  * @param {Function} [props.onItemAdded] The function to be called when an item is added to the list. If none is provided, the form remain be hidden.
  * @param {Function} [props.onDuplicateItemAdded] The function to be called when adding an item that already exists.
  * @returns {JSX.Element}
  */
-function MainAppBar({
+export default function MainAppBar({
   items = [],
   onItemAdded,
   onDuplicateItemAdded,
@@ -54,14 +54,9 @@ function MainAppBar({
   const classes = useStyles();
   const [profileMenuAnchorEl, setProfileMenuAnchorEl] = React.useState(null);
   const isProfileMenuOpen = Boolean(profileMenuAnchorEl);
-  const [autocompleteOptions, setAutocompleteOptions] = React.useState([]);
   const { account } = React.useContext(AuthenticationContext);
   const { enqueueSnackbar } = useSnackbar();
-  
-  useEffect(function updateOptions() {
-    setAutocompleteOptions(items.map(i=>i.name).sort((a, b) => sortAlphabetically(a, b)));
-  }, [items]);
-
+  const autocompleteOptions = items.map(i=>i.name).sort((a, b) => sortAlphabetically(a, b));
 
   const onSubmit = async (event, itemName) => {
     try {
@@ -160,5 +155,3 @@ function MainAppBar({
     </div>
   );
 }
-
-export default MainAppBar;

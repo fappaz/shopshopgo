@@ -111,6 +111,10 @@ function SignIn() {
       <Box>
         <Grid container justify='center' spacing={2}>
           {
+            /**
+             * @TODO (future) Create and use `components/TextInput`, 
+             * a Textfield that uses react-hook-form under the hood.
+             * */
             [formFields.email, formFields.password].map((field) => (
               <Grid item key={`grid-${field.inputProps.id}`} xs={12}>
                 <Controller

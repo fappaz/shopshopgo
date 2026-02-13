@@ -7,9 +7,8 @@ import {
 
 /**
  * 
- * @param {Object} props
+ * @param {import("@material-ui/core").ButtonProps} props
  * @param {Boolean} [props.busy] Whether the button is busy. Default is false.
- * @param {Button.props} [props.buttonProps] Props for the Button component.
  */
 function BusyButton({
   busy,
@@ -18,17 +17,16 @@ function BusyButton({
 
   const classes = useStyles();
   return (
-    <div className={classes.containerRelative}>
-      <Button
-        variant='contained'
-        color='primary'
-        disabled={busy}
-        {...props}
-      >
-        { props.children }
-        {busy && <CircularProgress size={24} className={classes.buttonProgress} />}
-      </Button>
-    </div>
+    <Button
+      variant='contained'
+      color='primary'
+      disabled={busy}
+      className={classes.containerRelative}
+      {...props}
+    >
+      { props.children }
+      { !!busy && <CircularProgress size={24} className={classes.buttonProgress} />}
+    </Button>
   );
 
 };

@@ -1,5 +1,5 @@
 
-import { Box, Grid, List, Typography } from "@material-ui/core";
+import { Box, Grid, IconButton, List, Typography } from "@material-ui/core";
 import React from "react";
 import MainAppBar from "../components/MainAppBar";
 import Item from "../components/Item";
@@ -8,6 +8,10 @@ import { useTranslation } from "react-i18next";
 import Skeleton from '@material-ui/lab/Skeleton';
 import { AuthenticationContext } from "../context/AuthenticationProvider";
 import { sortAlphabetically } from "../utils/arrayUtils";
+import { useSnackbar } from "notistack";
+import BusyButton from "../components/BusyButton";
+import CloseIcon from "@material-ui/icons/Close";
+import useItems from "../api/items/useItems";
 
 function SkeletonItems ({ quantity = 5, height = 50 } = {}) {
   return (
@@ -23,17 +27,23 @@ function SkeletonItems ({ quantity = 5, height = 50 } = {}) {
   )
 }
 
-function ShoppingList() {
+export default function ShoppingList() {
 
   const { account } = React.useContext(AuthenticationContext);
   const { t } = useTranslation();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const { items, addItem, editItem, removeItem, apiStatus, processingItemIds } = ItemsApi.useItems(account?.id);
+  // const { items, addItem, editItem, removeItem, apiStatus, processingItemIds, deletedItem, setDeletedItem } = ItemsApi.useItems(account?.id);
+  const {
+    items,
+    insert,
+    update,
+    deleteById,
+    apiStatus,
+    undo,
+  } = useItems({ accountId: account.id});
 
-  const onDuplicateItemAdded = (itemName, duplicateItem) => {
-    const { id, ...data } = duplicateItem;
-    editItem(id, { ...data, status: ItemsApi.ItemStatus.pending });
-  }
+  const onDuplicateItemAdded = async (itemName, duplicateItem) => await updateItemStatus(duplicateItem, ItemsApi.ItemStatus.pending);
 
   if (apiStatus === ItemsApi.ApiStatus.loading) {
     return (
@@ -44,15 +54,48 @@ function ShoppingList() {
     );
   }
 
+  const enqueueActionSnackbar = (message, actionHistoryId) => enqueueSnackbar(message, {
+    action: snackbarId => (
+      <ItemDeletedSnackbar
+        onUndo={async () => {
+          await undo(actionHistoryId);
+          closeSnackbar(snackbarId);
+        }}
+        onDismiss={() => closeSnackbar(snackbarId)}
+      />
+    )
+  });
+
+  const insertItem = async (item) => {
+    const actionHistoryId = await insert(item, true);
+    enqueueActionSnackbar(t(`items.snackbar.inserted`), actionHistoryId);
+  };
+
+  const updateItemStatus = async (item, status) => {
+    const newItem = { ...item, status };
+    const actionHistoryId = await update(item.id, newItem, true);
+    enqueueActionSnackbar(t(`items.snackbar.updated`), actionHistoryId);
+  };
+
+  const toggleItemStatus = async (item) => {
+    const newStatus = item.status === ItemsApi.ItemStatus.purchased ? ItemsApi.ItemStatus.pending : ItemsApi.ItemStatus.purchased;
+    await updateItemStatus(item, newStatus);
+  };
+
+  const deleteItem = async (item) => {
+    const actionHistoryId = await deleteById(item.id, true);
+    enqueueActionSnackbar(t(`items.snackbar.deleted`), actionHistoryId);
+  };
+  
   return (
     <>
       <MainAppBar
-        onItemAdded={addItem}
+        onItemAdded={insertItem}
         onDuplicateItemAdded={onDuplicateItemAdded}
         items={items}
       />
       {
-        items.length > 0 ?
+        (items||[]).length > 0 ?
           <List>
             {
               []
@@ -69,17 +112,17 @@ function ShoppingList() {
               .map((item, index) => (
                 <Item
                   {...item}
-                  ticked={item.status === "purchased"}
+                  ticked={item.status === ItemsApi.ItemStatus.purchased}
                   key={`item-${index}`}
-                  onClick={() => editItem(item.id, { ...item, status: item.status === ItemsApi.ItemStatus.purchased ? ItemsApi.ItemStatus.pending : ItemsApi.ItemStatus.purchased })}
-                  onDelete={() => removeItem(item.id)}
-                  processing={processingItemIds.includes(item.id)}
+                  onClick={() => toggleItemStatus(item)}
+                  onDelete={() => deleteItem(item)}
+                  // processing={processingItemIds.includes(item.id)}
                 />
               ))
             }
           </List>
         :
-          <Grid container justify="center">
+          <Grid container justifyContent="center">
             <Grid item xs={5}>
               <Box my={6} textAlign="center">
                 <Typography>{t('addFirstItem')}</Typography>
@@ -91,4 +134,34 @@ function ShoppingList() {
   );
 }
 
-export default ShoppingList;
+/**
+ * @TODO jsdoc
+ * @param {Object} props The props.
+ * @returns {import("react").ReactNode}
+ */
+function ItemDeletedSnackbar({
+  onDismiss,
+  onUndo,
+} = {}) {
+
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <BusyButton
+        variant='text'
+        color='secondary'
+        onClick={onUndo}
+      >
+        {t(`undo`)}
+      </BusyButton>
+      <IconButton
+        color='secondary'
+        onClick={onDismiss}
+      >
+        <CloseIcon />
+      </IconButton>
+    </>
+  );
+
+}

@@ -9,8 +9,7 @@
     - [How to run unit tests](#how-to-run-unit-tests)
     - [How to build](#how-to-build)
     - [How to deploy](#how-to-deploy)
-- [Known Issues](#known-issues)
-  - [UnauthorizedAccess when logging in to Firebase on PowerShell](#unauthorizedaccess-when-logging-in-to-firebase-on-powershell)
+
 # Description
 
 An ads-free, open-source, incredibly simple shopping list app for the busy person.
@@ -24,9 +23,7 @@ An ads-free, open-source, incredibly simple shopping list app for the busy perso
 - Install the tools below:
   - NodeJS 16+
   - npm 6.9.0+
-  - Firebase Tools (`npm install -g firebase-tools`)
-  - env-cmd 10.0.1 (`npm install -g env-cmd@10.0.1`)
-- Run `npm install` to install dependencies
+- Run `npm install -g firebase-tools env-cmd@10.0.1 ; npm install` to install dependencies
 
 ### Set up Firebase project
 
@@ -65,6 +62,7 @@ An ads-free, open-source, incredibly simple shopping list app for the busy perso
     - Update your `package.json` scripts accordingly
 - Run `firebase login && firebase init` in your folder and follow instructions to set up firebase configuration files:
     - When asked which Firebase features you want to set up, at the moment just select `Hosting: Configure files for Firebase Hosting and (optionally) set up GitHub Action deploys`
+    - If in `Project Setup` you're asked `Please select an option`, select `Use an existing project`, then select the project you created earlier
     - Answer the questions like below:
         - ```
           ? What do you want to use as your public directory? ./build
@@ -122,22 +120,3 @@ firebase deploy --only hosting:${HOSTING_NAME}
 ```
 
 **Note**: replace `${HOSTING_NAME}` with the hosting name you configured in your Firebase Hosting (it should be the `site` property in your `firebase.json` file)
-
-# Known Issues
-
-## UnauthorizedAccess when logging in to Firebase on PowerShell
-
-When running `firebase login` on Windows PowerShell, you might get the following error message:
-
-```
-PS C:\git\shopshopgo> firebase login
-firebase : File C:\Users\YourUser\AppData\Roaming\npm\firebase.ps1 cannot be loaded because running scripts is disabled on this system. For more information, see about_Execution_Policies at     
-https:/go.microsoft.com/fwlink/?LinkID=135170.
-At line:1 char:1
-+ firebase login
-+ ~~~~~~~~
-    + CategoryInfo          : SecurityError: (:) [], PSSecurityException
-    + FullyQualifiedErrorId : UnauthorizedAccess
-```
-
-Simply delete the file in the location above and try again.

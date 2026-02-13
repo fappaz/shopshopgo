@@ -29,6 +29,8 @@ export const ItemStatus = {
  * @property {Function} removeItem The function to remove an item from the list.
  * @property {string} apiStatus The API request status, which should be one of the ApiStatus values.
  * @property {string[]} processingItemIds An array with the IDs of items that are being processed/edited.
+ * @property {Item} [deletedItem] The most recent deleted item, if any.
+ * @property {Function} clearDeletedItem Function to clear the most recent deleted item.
  */
 
 /**
@@ -41,6 +43,7 @@ export const useItems = (accountId) => {
   const [items, setItems] = React.useState([]);
   const [apiStatus, setApiStatus] = React.useState(ApiStatus.loading);
   const [processingItemIds, setProcessingItemIds] = React.useState([]);
+  const [deletedItem, setDeletedItem] = React.useState(null);
   
   React.useEffect(function setUpListener() {
     let unsubscribe;
@@ -55,6 +58,12 @@ export const useItems = (accountId) => {
         setApiStatus(ApiStatus.success);
 
         const modifiedItemIds = changes.filter(change => change.type === "modified").map(change => change.doc.data().id);
+
+        /**
+         * @TODO (future) I wanted to use 
+         * `setProcessingItemIds(ids => ids.filter(itemId => !modifiedItemIds.includes(itemId)));`
+         * However this is keeping the item as pending forever after its status is changed.
+         * */
         setProcessingItemIds(processingItemIds.filter(itemId => !modifiedItemIds.includes(itemId)));
       };
       unsubscribe = db.subscribeToItems(accountId, onChange);
@@ -76,9 +85,13 @@ export const useItems = (accountId) => {
   };
 
   const removeItem = async (itemId) => {
+    const item = items.find(item => item.id === itemId);
     setProcessingItemIds(previousState => [...previousState, itemId]);
     await deleteById(accountId, itemId);
+    setDeletedItem(item);
   };
+
+  const clearDeletedItem = () => setDeletedItem(null);
 
   return {
     items,
@@ -87,6 +100,7 @@ export const useItems = (accountId) => {
     removeItem,
     apiStatus,
     processingItemIds,
+    deletedItem, clearDeletedItem,
   };
 };
 
@@ -95,7 +109,7 @@ export const useItems = (accountId) => {
  * @param {firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>} doc The Firestore document. 
  * @returns {Item} The item.
  */
-const docToItem = (doc) => {
+export const docToItem = (doc) => {
   if (!doc) return;
   const data = doc.data();
   return { ...data, id: doc.id };
